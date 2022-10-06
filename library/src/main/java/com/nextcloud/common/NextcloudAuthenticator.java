@@ -1,7 +1,7 @@
 /* Nextcloud Android Library is available under MIT license
  *
  *   @author Tobias Kaminsky
- *   Copyright (C) 2019 Tobias Kaminsky
+ *   Copyright (C) 2022 Tobias Kaminsky
  *   Copyright (C) 2022 Nextcloud GmbH
  *
  *   Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,13 +24,46 @@
  *   THE SOFTWARE.
  *
  */
-package com.owncloud.android.lib.resources.shares
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+package com.nextcloud.common;
 
-@Parcelize
-data class ShareeUser(val userId: String?, var displayName: String?, val shareType: ShareType?) :
-    Parcelable
-data class ShareeUser(var userId: String?, var displayName: String?, var shareType: ShareType?) :
-    Parcelable
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import okhttp3.Authenticator;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.Route;
+
+public class NextcloudAuthenticator implements Authenticator {
+    private String credentials;
+    private String authenticatorType;
+
+    public NextcloudAuthenticator(@NonNull String credentials, @NonNull String authenticatorType) {
+        this.credentials = credentials;
+        this.authenticatorType = authenticatorType;
+    }
+
+    @Nullable
+    @Override
+    public Request authenticate(@Nullable Route route, @NonNull Response response) {
+        if (response.request().header(authenticatorType) != null) {
+            return null;
+        }
+
+        Response countedResponse = response;
+
+        int attemptsCount = 0;
+
+        while ((countedResponse = countedResponse.priorResponse()) != null) {
+            attemptsCount++;
+            if (attemptsCount == 3) {
+                return null;
+            }
+        }
+
+        return response.request().newBuilder()
+                .header(authenticatorType, credentials)
+                .build();
+    }
+}
