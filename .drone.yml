@@ -93,6 +93,8 @@ services:
       - su www-data -c "git clone https://github.com/nextcloud/notifications.git /var/www/html/apps/notifications/"
       - su www-data -c "php /var/www/html/occ app:enable -f notifications"
       - su www-data -c "php /var/www/html/occ notification:generate test -d test"
+      - su www-data -c "git clone https://github.com/nextcloud/files_downloadlimit.git /var/www/html/apps/files_downloadlimit/"
+      - su www-data -c "php /var/www/html/occ app:enable -f files_downloadlimit"
       - /usr/local/bin/run.sh
 
 trigger:
