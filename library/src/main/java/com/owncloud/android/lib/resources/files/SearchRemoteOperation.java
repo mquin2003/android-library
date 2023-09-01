@@ -27,7 +27,6 @@
 
 package com.owncloud.android.lib.resources.files;
 
-import com.nextcloud.common.NextcloudAuthenticator;
 import com.nextcloud.common.NextcloudClient;
 import com.owncloud.android.lib.common.OwnCloudClient;
 import com.owncloud.android.lib.common.operations.RemoteOperation;
@@ -56,7 +55,6 @@ import javax.xml.transform.stream.StreamResult;
 import at.bitfire.dav4jvm.DavResource;
 import at.bitfire.dav4jvm.Response;
 import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
 
 /**
  * Remote operation performing the search in the Nextcloud server.
@@ -199,20 +197,13 @@ public class SearchRemoteOperation extends RemoteOperation<List<RemoteFile>> {
                     startDate,
                     endDate);
 
-            // disable redirect
-            OkHttpClient disabledRedirectClient = client.getClient()
-                    .newBuilder()
-                    .followRedirects(false)
-                    .authenticator(new NextcloudAuthenticator(client.getCredentials(), "Authorization"))
-                    .build();
-
             Document searchDocument = searchMethod.getDocumentQuery(searchInfo);
             String searchString = transformDocumentToString(searchDocument);
 
             ArrayList<Response> responses = new ArrayList<>();
 
             new DavResource(
-                    disabledRedirectClient,
+                    client.disabledRedirectClient(),
                     HttpUrl.get(client.getDavUri().toString()))
                     .search(searchString, (response, hrefRelation) -> {
                         responses.add(response);

@@ -114,6 +114,18 @@ class NextcloudClient private constructor(
         return method.execute(this)
     }
 
+    fun <T> execute(method: DavMethod<T>): T {
+        return method.execute(this)
+    }
+
+    fun disabledRedirectClient(): OkHttpClient {
+        return client
+            .newBuilder()
+            .followRedirects(false)
+            .authenticator(NextcloudAuthenticator(credentials, "Authorization"))
+            .build()
+    }
+
     internal fun execute(request: Request): ResponseOrError {
         return try {
             val response = client.newCall(request).execute()

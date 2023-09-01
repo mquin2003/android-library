@@ -30,6 +30,7 @@ package com.owncloud.android
 import at.bitfire.dav4jvm.DavResource
 import at.bitfire.dav4jvm.Response
 import com.nextcloud.common.NextcloudAuthenticator
+import com.nextcloud.operations.PropFindMethod
 import com.owncloud.android.lib.common.network.WebdavUtils
 import com.owncloud.android.lib.common.utils.WebDavFileUtils
 import com.owncloud.android.lib.resources.files.CreateFolderRemoteOperation
@@ -57,7 +58,7 @@ class Dav4JVM : AbstractIT() {
     @Throws(IOException::class)
     fun singlePropfind() {
         val path = "/testFolder/"
-        val subFolder = "$path subfolder/"
+        val subFolder = path + "subfolder/"
 
         // create folder
         CreateFolderRemoteOperation(
@@ -123,7 +124,6 @@ class Dav4JVM : AbstractIT() {
         WebdavUtils.registerCustomFactories()
 
         // TODO use DavResource().propfind in ReadFileRemoteOperation/ReadFolderRemoteOperation
-        // TODO extract in own class for convenient use
         // TODO test all properties on server!
         DavResource(client, httpUrl)
             .propfind(
@@ -144,8 +144,20 @@ class Dav4JVM : AbstractIT() {
         assertEquals(1, memberElements.size)
 
         val remoteFile = WebDavFileUtils().parseResponse(rootElement, nextcloudClient.filesDavUri)
-
         assertTrue(oldRemoteFile == remoteFile)
+
+        val subfolderFile =
+            WebDavFileUtils().parseResponse(memberElements[0], nextcloudClient.filesDavUri)
+        assertTrue(oldSubFolderFile == subfolderFile)
+
+        // new propfind
+        val newResult = nextcloudClient.execute(PropFindMethod(httpUrl))
+
+        assertTrue(newResult.success)
+        assertTrue(oldRemoteFile == newResult.root)
+
+        assertEquals(1, newResult.children.size)
+        assertTrue(oldSubFolderFile == newResult.children[0])
     }
 
     @Test
