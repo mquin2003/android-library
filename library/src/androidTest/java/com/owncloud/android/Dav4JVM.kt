@@ -31,10 +31,12 @@ import at.bitfire.dav4jvm.DavResource
 import at.bitfire.dav4jvm.Response
 import com.nextcloud.common.NextcloudAuthenticator
 import com.nextcloud.operations.PropFindMethod
+import com.nextcloud.test.RandomStringGenerator
 import com.owncloud.android.lib.common.network.WebdavUtils
 import com.owncloud.android.lib.common.utils.WebDavFileUtils
 import com.owncloud.android.lib.resources.files.CreateFolderRemoteOperation
 import com.owncloud.android.lib.resources.files.ReadFolderRemoteOperation
+import com.owncloud.android.lib.resources.files.ReadFolderRemoteOperationIT
 import com.owncloud.android.lib.resources.files.SearchRemoteOperation
 import com.owncloud.android.lib.resources.files.ToggleFavoriteRemoteOperation
 import com.owncloud.android.lib.resources.files.UploadFileRemoteOperation
@@ -43,6 +45,9 @@ import com.owncloud.android.lib.resources.shares.CreateShareRemoteOperation
 import com.owncloud.android.lib.resources.shares.OCShare
 import com.owncloud.android.lib.resources.shares.ShareType
 import com.owncloud.android.lib.resources.status.OCCapability
+import com.owncloud.android.lib.resources.tags.CreateTagRemoteOperation
+import com.owncloud.android.lib.resources.tags.GetTagsRemoteOperation
+import com.owncloud.android.lib.resources.tags.PutTagRemoteOperation
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.apache.jackrabbit.webdav.DavConstants
 import org.junit.Assert.assertEquals
@@ -97,13 +102,34 @@ class Dav4JVM : AbstractIT() {
         assertTrue(ReadFolderRemoteOperation(subFolder).execute(client).isSuccess)
 
         // do old read folder operation to compare data against it
-        val result = ReadFolderRemoteOperation(path).execute(client).data as List<RemoteFile>
+        var result = ReadFolderRemoteOperation(path).execute(client).data as List<RemoteFile>
         assertEquals(2, result.size)
-        val oldRemoteFile = result[0]
-        val oldSubFolderFile = result[1]
+        var oldRemoteFile = result[0]
+        var oldSubFolderFile = result[1]
 
         assertEquals(path, oldRemoteFile.remotePath)
         assertEquals(subFolder, oldSubFolderFile.remotePath)
+
+        // create tag
+        val tag1 = "a" + RandomStringGenerator.make(ReadFolderRemoteOperationIT.TAG_LENGTH)
+        assertTrue(CreateTagRemoteOperation(tag1).execute(nextcloudClient).isSuccess)
+
+        // list tags
+        val tags = GetTagsRemoteOperation().execute(client).resultData
+
+        // add tag
+        assertTrue(
+            PutTagRemoteOperation(
+                tags[0].id,
+                oldRemoteFile.localId
+            ).execute(nextcloudClient).isSuccess
+        )
+
+        // do old read folder operation to compare data against it
+        result = ReadFolderRemoteOperation(path).execute(client).data as List<RemoteFile>
+        assertEquals(2, result.size)
+        oldRemoteFile = result[0]
+        oldSubFolderFile = result[1]
 
         // new
         val httpUrl = (nextcloudClient.filesDavUri.toString() + path).toHttpUrl()
@@ -117,10 +143,11 @@ class Dav4JVM : AbstractIT() {
         val client = nextcloudClient.client
             .newBuilder()
             .followRedirects(false)
-            .authenticator(NextcloudAuthenticator(nextcloudClient.credentials, "Authorization"))
+            .authenticator(NextcloudAuthenticator(nextcloudClient.credentials))
             .build()
 
         // register custom property
+        // TODO check how to do it in a central way
         WebdavUtils.registerCustomFactories()
 
         // TODO use DavResource().propfind in ReadFileRemoteOperation/ReadFolderRemoteOperation
@@ -194,7 +221,11 @@ class Dav4JVM : AbstractIT() {
             "test",
             SearchRemoteOperation.SearchType.FILE_SEARCH,
             false,
-            OCCapability(23, 0, 0)
+            OCCapability().apply {
+                versionMayor = 23
+                versionMinor = 0
+                versionMicro = 0
+            }
         ).execute(
             client
         )
@@ -213,7 +244,11 @@ class Dav4JVM : AbstractIT() {
             "test",
             SearchRemoteOperation.SearchType.FILE_SEARCH,
             false,
-            OCCapability(23, 0, 0)
+            OCCapability().apply {
+                versionMayor = 23
+                versionMinor = 0
+                versionMicro = 0
+            }
         ).execute(
             nextcloudClient
         )

@@ -122,7 +122,7 @@ class NextcloudClient private constructor(
         return client
             .newBuilder()
             .followRedirects(false)
-            .authenticator(NextcloudAuthenticator(credentials, "Authorization"))
+            .authenticator(NextcloudAuthenticator(credentials))
             .build()
     }
 
