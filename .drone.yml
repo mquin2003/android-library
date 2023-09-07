@@ -123,7 +123,7 @@ steps:
         from_secret: GIT_TOKEN
     commands:
       - emulator -avd android -no-snapshot -gpu swiftshader_indirect -no-window -no-audio -skin 500x833 &
-      - sed -i s"#https://server#http://server-oldest-stable#" gradle.properties
+      - sed -i s"#https://server#http://server-stable-16#" gradle.properties
       - sed -i s"#1#5#" ./library/src/androidTest/java/com/owncloud/android/RetryTestRule.kt
       - ./gradlew assembleDebug
       - ./scripts/wait_for_emulator.sh
@@ -223,8 +223,8 @@ steps:
       - ./gradlew assembleDebug
       - ./scripts/wait_for_emulator.sh
       - ./scripts/wait_for_server.sh server-stable-27
-      - scripts/deleteOutdatedComments.sh "stable25" "Unit" $DRONE_PULL_REQUEST $GIT_USERNAME $GIT_TOKEN
-      - scripts/deleteOutdatedComments.sh "stable25" "IT" $DRONE_PULL_REQUEST $GIT_USERNAME $GIT_TOKEN
+      - scripts/deleteOutdatedComments.sh "stable27" "Unit" $DRONE_PULL_REQUEST $GIT_USERNAME $GIT_TOKEN
+      - scripts/deleteOutdatedComments.sh "stable27" "IT" $DRONE_PULL_REQUEST $GIT_USERNAME $GIT_TOKEN
       - ./gradlew jacocoTestDebugUnitTestReport || scripts/uploadReport.sh $LOG_USERNAME $LOG_PASSWORD $DRONE_BUILD_NUMBER "stable25" "Unit" $DRONE_PULL_REQUEST $GIT_USERNAME $GIT_TOKEN
       - ./gradlew installDebugAndroidTest
       - ./gradlew createDebugCoverageReport || scripts/uploadReport.sh $LOG_USERNAME $LOG_PASSWORD $DRONE_BUILD_NUMBER "stable25" "IT" $DRONE_PULL_REQUEST $GIT_USERNAME $GIT_TOKEN
@@ -303,6 +303,6 @@ trigger:
     - pull_request
 ---
 kind: signature
-hmac: 4917d53e73277128b084d3814ad6a02acaf46a571402ddc231e0bc21c8796914
+hmac: 636e9d47618c0fb19ad413b830d8fef81e59e5fc4ec624846a52dadbb5b4aee8
 
 ...
