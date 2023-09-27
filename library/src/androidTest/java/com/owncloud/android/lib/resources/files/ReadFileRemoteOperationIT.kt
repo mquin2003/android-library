@@ -79,7 +79,7 @@ class ReadFileRemoteOperationIT : AbstractIT() {
         @Suppress("Detekt.MagicNumber")
         assertEquals(ImageDimension(451f, 529f), remoteFile.imageDimension)
 
-        testOnlyOnServer(NextcloudVersion.nextcloud_27)
+        requireServerVersion(NextcloudVersion.nextcloud_27)
 
         @Suppress("Detekt.MagicNumber")
         assertEquals(GeoLocation(49.99679166666667, 8.67198611111111), remoteFile.geoLocation)
