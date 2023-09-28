@@ -63,6 +63,8 @@ class ReadFileRemoteOperationIT : AbstractIT() {
 
     @Test
     fun testMetadata() {
+        requireServerVersion(NextcloudVersion.nextcloud_27)
+
         val filePath = getFile("gps.jpg").absolutePath
         val remotePath = "/gps.jpg"
 
