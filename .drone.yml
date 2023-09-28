@@ -190,6 +190,8 @@ services:
       - su www-data -c "git clone -b $SERVER_VERSION https://github.com/nextcloud/external.git /var/www/html/apps/external/"
       - su www-data -c 'php /var/www/html/occ config:app:set external sites --value="{\"1\":{\"id\":1,\"name\":\"Nextcloud\",\"url\":\"https:\/\/www.nextcloud.com\",\"lang\":\"\",\"type\":\"link\",\"device\":\"\",\"icon\":\"external.svg\",\"groups\":[],\"redirect\":false},\"2\":{\"id\":2,\"name\":\"Forum\",\"url\":\"https:\/\/help.nextcloud.com\",\"lang\":\"\",\"type\":\"link\",\"device\":\"\",\"icon\":\"external.svg\",\"groups\":[],\"redirect\":false}}"'
       - su www-data -c "php /var/www/html/occ app:enable external"
+      - su www-data -c "git clone -b $SERVER_VERSION https://github.com/nextcloud/notifications.git /var/www/html/apps/notifications/"
+      - su www-data -c "php /var/www/html/occ app:enable -f notifications"
       - su www-data -c "php /var/www/html/occ notification:generate test test"
       - /run.sh
 
@@ -304,6 +306,6 @@ trigger:
     - pull_request
 ---
 kind: signature
-hmac: 2aeb18939c4e06d0b2765527edad9ef5cb4a89a37f1ba4935e280ce26849c562
+hmac: 4e30dbff799323ba9b6907e4546d0c179fcb3086d1b697d83c2d9ba7f496e9f4
 
 ...
