@@ -36,13 +36,19 @@ import org.apache.commons.httpclient.HttpMethodBase
 abstract class OCSRemoteOperation<T> : RemoteOperation<T>() {
     private val gson = Gson()
 
-    fun <T> getServerResponse(method: HttpMethodBase, type: TypeToken<T>): T? {
+    fun <T> getServerResponse(
+        method: HttpMethodBase,
+        type: TypeToken<T>
+    ): T? {
         val response = method.responseBodyAsString
         val element = JsonParser.parseString(response).asJsonObject
         return gson.fromJson(element, type.type)
     }
 
-    fun <T> getServerResponse(method: OkHttpMethodBase, type: TypeToken<T>): T? {
+    fun <T> getServerResponse(
+        method: OkHttpMethodBase,
+        type: TypeToken<T>
+    ): T? {
         val response = method.getResponseBodyAsString()
         val element = JsonParser.parseString(response).asJsonObject
         return gson.fromJson(element, type.type)
