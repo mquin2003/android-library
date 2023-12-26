@@ -57,13 +57,18 @@ public class DirectEditingObtainRemoteOperation extends OCSRemoteOperation<Direc
             int status = client.executeMethod(getMethod, SYNC_READ_TIMEOUT, SYNC_CONNECTION_TIMEOUT);
 
             if (status == HttpStatus.SC_OK) {
-                DirectEditing directEditing = getServerResponse(getMethod,
-                        new TypeToken<ServerResponse<DirectEditing>>() {
-                        })
-                        .getOcs().getData();
+                ServerResponse<DirectEditing> serverResponse = getServerResponse(getMethod,
+                        new TypeToken<>() {
+                        });
 
-                result = new RemoteOperationResult<>(true, getMethod);
-                result.setResultData(directEditing);
+                if (serverResponse != null) {
+                    DirectEditing directEditing = serverResponse.getOcs().getData();
+                    result = new RemoteOperationResult<>(true, getMethod);
+                    result.setResultData(directEditing);
+                } else {
+                    result = new RemoteOperationResult<>(false, getMethod);
+                }
+
             } else {
                 result = new RemoteOperationResult<>(false, getMethod);
                 client.exhaustResponse(getMethod.getResponseBodyAsStream());
@@ -77,6 +82,7 @@ public class DirectEditingObtainRemoteOperation extends OCSRemoteOperation<Direc
                 getMethod.releaseConnection();
             }
         }
+
         return result;
     }
 }

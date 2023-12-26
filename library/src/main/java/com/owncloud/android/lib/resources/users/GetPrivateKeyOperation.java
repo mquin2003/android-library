@@ -66,12 +66,14 @@ public class GetPrivateKeyOperation extends OCSRemoteOperation<PrivateKey> {
             int status = client.executeMethod(getMethod, SYNC_READ_TIMEOUT, SYNC_CONNECTION_TIMEOUT);
 
             if (status == HttpStatus.SC_OK) {
-                ServerResponse<PrivateKey> serverResponse =
-                        getServerResponse(getMethod, new TypeToken<ServerResponse<PrivateKey>>() {
-                        });
+                ServerResponse<PrivateKey> serverResponse = getServerResponse(getMethod, new TypeToken<>() {});
 
-                result = new RemoteOperationResult<>(true, getMethod);
-                result.setResultData(serverResponse.getOcs().data);
+                if (serverResponse != null) {
+                    result = new RemoteOperationResult<>(true, getMethod);
+                    result.setResultData(serverResponse.getOcs().data);
+                } else {
+                    result = new RemoteOperationResult<>(false, getMethod);
+                }
             } else {
                 result = new RemoteOperationResult<>(false, getMethod);
                 client.exhaustResponse(getMethod.getResponseBodyAsStream());

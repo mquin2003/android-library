@@ -32,7 +32,6 @@ import com.google.gson.reflect.TypeToken
 import com.nextcloud.common.OkHttpMethodBase
 import com.owncloud.android.lib.common.operations.RemoteOperation
 import org.apache.commons.httpclient.HttpMethodBase
-import java.io.IOException
 
 abstract class OCSRemoteOperation<T> : RemoteOperation<T>() {
     private val gson = Gson()
